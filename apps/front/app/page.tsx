@@ -26,10 +26,10 @@ export default function WebsiteIdeaPage() {
         { idea }
       );
       const typedSections: Section[] = res.data.sections.map(
-        (section: any) => ({
-          ...section,
-          type: section.type as SectionType,
-        })
+        (section: unknown) => {
+          const s = section as Section;
+          return { ...s, type: s.type as SectionType };
+        }
       );
       setSections(typedSections);
       setSubmitted(true);
