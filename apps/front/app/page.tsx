@@ -1,32 +1,62 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
+import axios from "axios";
+import IdeaForm from "./components/IdeaForm";
+import ErrorMessage from "./components/ErrorMessage";
+import DynamicLandingPage from "./components/DynamicLandingPage";
+import { Section, SectionType } from "./types/section";
 
-type User = {
-  _id: string;
-  name: string;
-  email: string;
-};
+export default function WebsiteIdeaPage() {
+  const [idea, setIdea] = useState("");
+  const [sections, setSections] = useState<Section[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [submitted, setSubmitted] = useState(false);
 
-export default function UsersPage() {
-  const [users, setUsers] = useState<User[]>([]);
-
-  useEffect(() => {
-    fetch("http://localhost:8000/users")
-      .then((res) => res.json())
-      .then((data) => setUsers(data));
-  }, []);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+    setError(null);
+    setSections([]);
+    setSubmitted(false);
+    try {
+      const res = await axios.post(
+        `${process.env.NEXT_PUBLIC_API_URL}/sections`,
+        { idea }
+      );
+      const typedSections: Section[] = res.data.sections.map(
+        (section: any) => ({
+          ...section,
+          type: section.type as SectionType,
+        })
+      );
+      setSections(typedSections);
+      setSubmitted(true);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "Unknown error");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
-    <div>
-      <h1>Users</h1>
-      <ul>
-        {users.map((user) => (
-          <li key={user._id}>
-            {user.name} ({user.email})
-          </li>
-        ))}
-      </ul>
-    </div>
+    <main className="min-h-screen bg-neutral-950 flex items-center justify-center">
+      <div className="max-w-3xl w-full bg-neutral-900 p-8 rounded-xl shadow-2xl m-6 text-neutral-100">
+        <h1 className="text-3xl font-bold mb-6 text-center tracking-tight text-neutral-100">
+          Website Idea Generator
+        </h1>
+        <IdeaForm
+          idea={idea}
+          setIdea={setIdea}
+          loading={loading}
+          onSubmit={handleSubmit}
+        />
+        <ErrorMessage error={error} />
+        {submitted && sections.length > 0 && (
+          <DynamicLandingPage sections={sections} />
+        )}
+      </div>
+    </main>
   );
 }
