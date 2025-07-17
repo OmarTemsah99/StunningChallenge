@@ -27,6 +27,18 @@ git clone <repo-url>
 cd StunningChallenge
 ```
 
+### 1.1. Add the API Repository
+
+If the `apps/api` folder is not already present, make sure to add or clone the API repository into `apps/api`:
+
+```bash
+# From the root of the monorepo
+cd apps
+# Replace <api-repo-url> with your API repository URL
+git clone <api-repo-url> api
+cd ..
+```
+
 ### 2. (If starting from scratch) Initialize npm in the root
 
 If you are setting up this monorepo from scratch, run:
@@ -68,8 +80,24 @@ npm install
 
 ### 5. Set Up Environment Variables
 
-- **Frontend:** If required, create a `.env.local` file in `apps/front/` (see `apps/front/README.md` for details).
-- **Backend:** If required, create a `.env` file in `apps/api/` (see `apps/api/README.md` for details).
+- **Frontend:**
+  - Create a file named `.env.local` in `apps/front/`.
+  - Add the following line to it:
+    ```env
+    NEXT_PUBLIC_API_URL=http://localhost:8000
+    ```
+
+- **Backend:**
+  - Create a file named `.env` in `apps/api/`.
+  - Add the following line to it:
+
+    ```env
+    MONGODB_URI=mongodb://localhost:27017/stunningchallenge
+    ```
+
+  - The backend uses MongoDB as its database. Set `MONGODB_URI` to your MongoDB connection string if different.
+
+See each app’s README for more details on environment variables.
 
 ### 6. Run the Development Servers
 
@@ -80,7 +108,7 @@ npm run dev
 ```
 
 - Frontend: [http://localhost:3000](http://localhost:3000)
-- Backend: [http://localhost:3001](http://localhost:3001) _(or as configured)_
+- Backend: [http://localhost:8000](http://localhost:8000) _(or as configured)_
 
 ### 7. Build All Apps
 
